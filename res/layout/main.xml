@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@android:id/tabhost"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent">
+
+<LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="300dp"
+        android:layout_height="748dp">
+        <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:background="@drawable/icon_auchan_config" >
+
+    </FrameLayout>
+    
+
+ 
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="585dp"
+            android:background="@drawable/layout_border"
+            android:visibility="visible">
+             <ListView
+		        android:id="@+id/listview"
+		        android:layout_width="fill_parent"
+		        android:layout_height="572dp"
+		        android:background="#FFFFFF"
+		        android:cacheColorHint="#00000000"
+		        tools:listitem ="@layout/listview"
+                 android:paddingBottom="2dp">
+    		</ListView>
+
+        </FrameLayout>
+      
+       <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="160dp"
+            android:background="@drawable/layout_border"
+            android:visibility="visible">
+             <ListView
+		        android:id="@+id/listview2"
+		        android:layout_width="fill_parent"
+		        android:layout_height="100dp"
+		        android:background="#D0D0D0"
+		        android:cacheColorHint="#00000000"
+
+		        tools:listitem ="@layout/addition" >
+    		</ListView>
+
+
+
+       </FrameLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:padding="5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/NameCli"
+            android:layout_gravity="center"
+            android:textColor="@color/blue"/>
+
+        <TabWidget
+            android:id="@android:id/tabs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+       <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="fill_parent"
+            android:layout_height="572dp"
+            android:padding="1dp">
+
+
+            </FrameLayout>
+
+        <ListView
+android:id="@+id/listview3"
+android:layout_width="fill_parent"
+android:layout_height="100dp"
+android:background="#D0D0D0"
+android:cacheColorHint="#00000000">
+</ListView>
+    </LinearLayout>
+
+</LinearLayout>
+
+</TabHost>

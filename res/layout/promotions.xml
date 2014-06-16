@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+
+ <ImageView
+     android:id="@+id/list_image1"
+     android:layout_width="60dip"
+     android:layout_height="60dip"
+     android:src="@drawable/fromage" />
+    
+  <ImageView
+      android:id="@+id/list_image2"
+      android:layout_width="60dip"
+      android:layout_height="60dip"
+      android:src="@drawable/vaisselle" />
+
+   <ImageView
+       android:id="@+id/list_image3"
+       android:layout_width="60dip"
+       android:layout_height="60dip"
+       android:src="@drawable/lait" />
+
+    <ImageView
+        android:id="@+id/list_image4"
+        android:layout_width="60dip"
+        android:layout_height="60dip"
+        android:src="@drawable/bledina" />
+
+     <ImageView
+         android:id="@+id/list_image5"
+         android:layout_width="match_parent"
+         android:layout_height="60dip"
+         android:src="@drawable/biere" />
+
+</LinearLayout>
