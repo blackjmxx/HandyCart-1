@@ -33,8 +33,14 @@
 
 
     public class MainActivity extends TabActivity {
-        private ArrayList<HashMap> list;
+
+        private String[] parts;
+        private ArrayList<HashMap> list = new ArrayList<HashMap>();
         private ArrayList<HashMap> listTotal;
+        double RealPrice =0;
+        ArrayList<ListeCourses> results = new ArrayList<ListeCourses>();
+        ArrayList<ListeCourses> liste_achat;
+
         private ArrayList<HashMap> listPromo;
         public ExtractFunctions extract = new ExtractFunctions();
         private ListView maListViewPerso;
@@ -65,7 +71,7 @@
             if (null != intent) {
                String  headline = intent.getStringExtra("data");
                 t = (TextView) findViewById(R.id.NameCli);
-                String[] parts = headline.split(":");
+                parts = headline.split(":");
                 t.append("BIENVENUE: "+parts[0]);
 
                 Product product1 = databaseAdapter.getProductByBarCode("1234567891248");
@@ -79,7 +85,8 @@
                 {
                     String[] parts3 = part2[i].split("=");
 
-                    Product product = databaseAdapter.getProductsbyId(parts3[0]);
+                    Product product = databaseAdapter.getProductByID(Integer.parseInt( parts3[0]));
+                    liste_achat = AddList(product.getName(), parts3[1], String.valueOf(product.getPrice()));
                 }
 
             }
@@ -92,6 +99,7 @@
 
             // Android tab
             Intent intentAndroid = new Intent().setClass(this, NavigationActivity.class);
+            intentAndroid.putExtra("id Rayon", parts[1]);
             TabSpec tabSpecAndroid = tabHost
                 .newTabSpec("Android")
                 .setIndicator("Navigation")
@@ -148,17 +156,16 @@
 
             ListView lview = (ListView) findViewById(R.id.listview);
             ListView lviewTotal = (ListView) findViewById(R.id.listview2);
-            //ListView lviewPromotion = (ListView) findViewById(R.id.listview3);
-            //populateList();
-            DecodeProtocol("AUT LISTECOURSE-NomProduit1|Marque1,Prix1,Quantit?1;NomProduit2|Marque2,Prix2,Quantit?2;NomProduit3|Marque3,Prix3,Quantit?3;");
-            CalculTotal();
 
-            listviewAdapter adapter = new listviewAdapter(this, list);
+          /*  liste_achat = ScanProduct("Pomme de terre", "1", "1.45");
+            liste_achat = ScanProduct("fromage", "1", "2.5");*/
+
+
+            lview.setAdapter(new listViewCourses(this, liste_achat));
+
+
             listviewAdapterPrice adapterTotal = new listviewAdapterPrice(this, listTotal);
-            //listviewAdapterPromotions adapterPromo = new listviewAdapterPromotions(this,listPromo);
-            lview.setAdapter(adapter);
             lviewTotal.setAdapter(adapterTotal);
-            //lviewPromotion.setAdapter(adapterPromo);
 
         }
 
@@ -205,14 +212,42 @@
 
         }
 
+        //la fonction qui permet d'ajouter les produits scannÈes
+        public ArrayList<ListeCourses> ScanProduct(String Name, String Quantite, String Price){
+            ListeCourses listeCourse = new ListeCourses();
+            listeCourse.setName(Name);
+            listeCourse.setItemQuantite(Quantite);
+            listeCourse.setPrice(Price);
+            listeCourse.setImageNumber(0);
+            results.add(listeCourse);
 
-        public void CalculTotal(){
-             listTotal = new ArrayList<HashMap>();
+            RealPrice += Double.parseDouble(Price);
+            CalculTotal(String.valueOf(RealPrice));
+            return results;
+        }
 
-                HashMap temp = new HashMap();
-                    temp.put(TOTAL,"Total :");
-                    temp.put(PRICE, "10.3 ?" );
-                listTotal.add(temp);
+        //la fonction qui permet d'ajouter la liste de courses prÈdÈfini par le client
+        public ArrayList<ListeCourses> AddList(String Name, String Quantite, String Price){
+
+            ListeCourses listeCourse = new ListeCourses();
+            listeCourse.setName(Name);
+            listeCourse.setItemQuantite(Quantite);
+            listeCourse.setPrice(Price);
+            listeCourse.setImageNumber(1);
+            results.add(listeCourse);
+            CalculTotal(String.valueOf(RealPrice));
+            return results;
+        }
+
+
+        // la fonction qui permet de mettre ‡ jour le total
+        public void CalculTotal(String chaine){
+            listTotal = new ArrayList<HashMap>();
+
+            HashMap<String, String> temp = new HashMap<String, String>();
+            temp.put(TOTAL,"Total :");
+            temp.put(PRICE, chaine );
+            listTotal.add(temp);
 
         }
         @Override

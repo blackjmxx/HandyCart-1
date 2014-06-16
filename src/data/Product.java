@@ -2,28 +2,87 @@ package data;
 
 public class Product {
 
+	private int id;
+
 	private String barCode;
 
-	private String libelle;
+	private String name;
 
-	private String marque;
+	private double price;
 
-	private double prix;
+	private String description;
 
-	public Product(String barCode, String libelle, String marque, double prix) {
+	private String brand;
+
+	private String category;
+
+	private String localisation;
+
+	private String family;
+
+	public Product(int id, String barCode, String name, double price,
+			String description, String brand, String category,
+			String localisation, String family) {
+
+		this.id = id;
 
 		this.barCode = barCode;
 
-		this.libelle = libelle;
+		this.name = name;
 
-		this.marque = marque;
+		this.price = price;
 
-		this.prix = prix;
+		this.description = description;
+
+		this.brand = brand;
+
+		this.category = category;
+
+		this.localisation = localisation;
+
+		this.family = family;
 	}
 
 	public String toString() {
 
-		return "Produit : " + barCode + " " + libelle + " " + marque + " "
-				+ prix;
+		return "Produit : " + id + " " + barCode + " " + name + " " + price
+				+ " " + description + " " + brand + " " + category + " "
+				+ localisation + " " + family;
 	}
+
+    public int getId() {
+        return id;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public String getLocalisation() {
+        return localisation;
+    }
+
+    public String getFamily() {
+        return family;
+    }
 }
