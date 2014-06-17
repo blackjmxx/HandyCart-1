@@ -31,6 +31,9 @@ public class BluetoothService extends Service {
     public static final int MESSAGE_TYPE_REGISTER_MAIN = 0;
     public static final int MESSAGE_TYPE_REGISTER = 1;
     public static final int MESSAGE_TYPE_TEXT = 2;
+    public static final int MESSAGE_AUTH= 3;
+    public static  final  int MESSAGE_LOC=4;
+    public static final int MESSAGE_SCAN =5;
 
 
     public static final int LOC = 10;
@@ -89,18 +92,58 @@ public class BluetoothService extends Service {
         if (mResponseMessenger == null) {
             Log.d("MessengerService", "Cannot send message to activity - no activity registered to this service.");
         } else {
-            Log.d("MessengerService", "Sending message to activity: " + text);
+            //Recuperartion de l'entete
+
+            String[] messageTosend = readMessage.split("-");
+
+            String entete = messageTosend[0];
             Bundle data = new Bundle();
-            data.putCharSequence("data", text);
-            Message msg = Message.obtain(null, MESSAGE_TYPE_TEXT);
-            msg.setData(data);
-            try {
-                mResponseMessenger.send(msg);
-            } catch (RemoteException e) {
-                // We always have to trap RemoteException (DeadObjectException
-                // is thrown if the target Handler no longer exists)
-                e.printStackTrace();
+            data.putCharSequence("data", messageTosend[1]);
+
+            if(entete.equals("AUT CLIENT"))
+            {
+                Log.d("MessengerService", text.toString());
+                Message msg = Message.obtain(null, MESSAGE_AUTH);
+                msg.setData(data);
+                try {
+                    mResponseMessenger.send(msg);
+                } catch (RemoteException e) {
+                    // We always have to trap RemoteException (DeadObjectException
+                    // is thrown if the target Handler no longer exists)
+                    e.printStackTrace();
+                }
+
             }
+            if(entete.equals("SCAN"))
+            {
+                Log.d("MessengerService", text.toString());
+                Message msg = Message.obtain(null, MESSAGE_SCAN);
+                msg.setData(data);
+                try {
+                    mResponseMessenger.send(msg);
+                } catch (RemoteException e) {
+                    // We always have to trap RemoteException (DeadObjectException
+                    // is thrown if the target Handler no longer exists)
+                    e.printStackTrace();
+                }
+
+            }
+            if(entete.equals("LOC"))
+            {
+                Log.d("MessengerService", text.toString());
+                Message msg = Message.obtain(null, MESSAGE_LOC);
+                msg.setData(data);
+                try {
+                    mResponseMessenger.send(msg);
+                } catch (RemoteException e) {
+                    // We always have to trap RemoteException (DeadObjectException
+                    // is thrown if the target Handler no longer exists)
+                    e.printStackTrace();
+                }
+
+            }
+
+
         }
     }
 
@@ -143,58 +186,47 @@ public class BluetoothService extends Service {
             _serverSocket = _bluetooth.listenUsingRfcommWithServiceRecord(PROTOCOL_SCHEME_RFCOMM,
                     UUID.fromString("a60f35f0-b93a-11de-8a39-08002009c666"));
 
-                                                                              /* accept client request */
+
             socket = _serverSocket.accept();
             Log.d("EF-BTBee", ">>Accept Client Request");
 
-            if (socket != null) {
+            while(true) {
+                if (socket != null) {
 
-                try {
-                    InputStream inputStream = socket.getInputStream();
-                    byte[] buffer = new byte[1024];
-                    int bytes;
+                    try {
+                        InputStream inputStream = socket.getInputStream();
+                        byte[] buffer = new byte[1024];
+                        int bytes;
 
-                    bytes = inputStream.read(buffer);
-                    readMessage = new String(buffer, 0, bytes);
-                    final String[] elt = getProtocol(readMessage);
+                        bytes = inputStream.read(buffer);
+                        readMessage = new String(buffer, 0, bytes);
+
+                        if(readMessage!=null)
+                        {
+                            _handler.post(new Runnable() {
+                                public void run() {
+                                    Log.d("EF-BTBee", readMessage);
+                                    sendToActivity(readMessage);
+                                    state++;
+                                }
+
+                            });
+                        }
 
 
-                    if (elt[0].equals("AUT CLIENT")) {
+                      /*  if (elt[0].equals("AUT CLIENT"))
+                        {
 
-                        _handler.post(new Runnable() {
-                            public void run() {
-                                Log.d("EF-BTBee", readMessage);
-                                // put the mesage here
-                                String[] parts = readMessage.split("-");
-                                String part1 = parts[0];
 
-                                sendToActivity(elt[1]);
-                                state++;
-                            }
+                        }*/
 
-                        });
-                    }else
-                    {
-                        _handler.post(new Runnable() {
-                            public void run() {
-                                Log.d("EF-BTBee", readMessage);
-                                // put the mesage here
-                                String[] parts = readMessage.split("-");
-                                String part1 = parts[0];
-                                sendToActivity(elt[1]);
-                                state++;
-                            }
 
-                        });
-
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
             }
-
-
 
         } catch (IOException e) {
             Log.e("EF-BTBee", "", e);
