@@ -1,6 +1,10 @@
 package com.example.handycart;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,13 +25,21 @@ public class NavigationActivity extends Activity {
     private int height;
     private Carte carte;
     private Handler handler;
+    private NavigationListener listener = null;
+    private Boolean MyListenerIsRegistered = false;
+
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation);
+        listener = new NavigationListener();
         carte = new Carte();
         handler = new Handler();
         String id = getIntent().getStringExtra("id Rayon");
+
+        registerReceiver(listener, new IntentFilter("com.example.handycart.NavigationActivity.DO_SOME"));
+
 
         gridLayout = (GridLayout) findViewById(R.id.tablayout);
         gridLayout.setRowCount(carte.getNbLignes());
@@ -60,6 +72,20 @@ public class NavigationActivity extends Activity {
                 testAetoile();
             }
         });
+    }
+
+    protected class NavigationListener extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // No need to check for the action unless the listener will
+            // will handle more than one - let's do it anyway
+            if (intent.getAction().equals("com.example.handycart.NavigationActivity.DO_SOME")) {
+                // Do something
+
+            }
+        }
     }
 
     private void testAetoile() {

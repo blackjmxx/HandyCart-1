@@ -1,34 +1,34 @@
     package com.example.handycart;
 
     import android.app.TabActivity;
-    import android.content.ComponentName;
-    import android.content.Context;
-    import android.content.Intent;
-    import android.content.ServiceConnection;
-    import android.content.res.Resources;
-    import android.os.Bundle;
-    import android.os.Handler;
-    import android.os.IBinder;
-    import android.os.Message;
-    import android.os.Messenger;
-    import android.os.RemoteException;
-    import android.util.Log;
-    import android.view.Menu;
-    import android.view.View;
-    import android.widget.ListView;
-    import android.widget.SimpleAdapter;
-    import android.widget.TabHost;
-    import android.widget.TabHost.TabSpec;
-    import android.widget.TextView;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
 
-    import java.util.ArrayList;
-    import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-    import dao.DatabaseAdapter;
-    import data.Product;
+import dao.DatabaseAdapter;
+import data.Product;
 
-    import static com.example.handycart.Constant.PRICE;
-    import static com.example.handycart.Constant.TOTAL;
+import static com.example.handycart.Constant.PRICE;
+import static com.example.handycart.Constant.TOTAL;
 
 
 
@@ -87,7 +87,7 @@
                 {
                     String[] parts3 = part2[i].split("=");
 
-                    Product product = databaseAdapter.getProductByID(Integer.parseInt( parts3[0]));
+                    Product product = databaseAdapter.getProductByID(Integer.parseInt(parts3[0]));
                     liste_achat = AddList(product.getName(), parts3[1], String.valueOf(product.getPrice()));
                 }
 
@@ -231,6 +231,10 @@
                     if (b != null) {
                         text = b.getCharSequence("data");
 
+                        Intent i = new Intent();
+                        i.setAction("com.example.handycart.NavigationActivity.DO_SOME");
+                        sendBroadcast(i);
+
                     }
                     Log.d("MessengerActivity", "Response: " + text);
                 }
@@ -244,7 +248,11 @@
 
                         Product product = databaseAdapter.getProductByBarCode(text.toString());
                         liste_achat = ScanProduct(product.getName(), "1",  String.valueOf(product.getPrice()));
-                        
+
+                        lview.setAdapter(new listViewCourses(mContext, liste_achat));
+                        listviewAdapterPrice adapterTotal = new listviewAdapterPrice(MainActivity.this, listTotal);
+                        lviewTotal.setAdapter(adapterTotal);
+
 
                     }
                     Log.d("MessengerActivity", "Response: " + text);
@@ -295,6 +303,14 @@
                 mServiceConnected = false;
             }
         }
+
+       /* private void updateView(int itemIndex){
+            int visiblePosition = lview.getFirstVisiblePosition();
+            View v = lview.getChildAt(itemIndex - visiblePosition);
+            // Do something fancy with your listitem view
+            TextView someTextView = (TextView) v.findViewById(R.id.sometextview);
+            someTextView.setText("");
+        }*/
 
 
         public static Context getContext() {
