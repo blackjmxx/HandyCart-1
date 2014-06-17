@@ -16,11 +16,7 @@ import android.util.Log;
 
     public class FirstView extends Activity{
 
-        private static final int ON_BIND = 1;
-        private ServiceConnection mServiceConnection;
-        private Handler mHandler;
-        private Intent intent;
-        public static final int AUTH  = 0;
+
         public static final int MESSAGE_TYPE_REGISTER = 1;
         public static final int AUTHANDLIST= 5;
         public static final int CODE_RETOUR = 7;
@@ -53,7 +49,7 @@ import android.util.Log;
         class IncomingHandler extends Handler {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what == BluetoothService.MESSAGE_TYPE_TEXT) {
+                if (msg.what == BluetoothService.MESSAGE_AUTH) {
                     Bundle b = msg.getData();
                     CharSequence text = null;
                     if (b != null) {
@@ -66,7 +62,9 @@ import android.util.Log;
                         text = "Service responded with empty message";
                     }
                     Log.d("MessengerActivity", "Response: " + text);
-                } else {
+                }
+
+                else {
                     super.handleMessage(msg);
                 }
             }

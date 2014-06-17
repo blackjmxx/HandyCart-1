@@ -48,11 +48,15 @@
         public static Context mContext;
         public static final int CODE_RETOUR = 7;
         final Messenger mMessenger = new Messenger(new IncomingHandler());
+        DatabaseAdapter databaseAdapter;
         /**
          * Messenger used for communicating with service.
          */
         Messenger mService = null;
         boolean mServiceConnected = false;
+
+        ListView lview;
+        ListView lviewTotal;
 
 
         //OnCreate
@@ -66,15 +70,13 @@
             mContext= getBaseContext();
             setContentView(R.layout.main);
             Intent intent = getIntent();
-            DatabaseAdapter databaseAdapter = DatabaseAdapter
+             databaseAdapter = DatabaseAdapter
                     .getInstanceOfDatabaseAdapter(this);
             if (null != intent) {
                String  headline = intent.getStringExtra("data");
                 t = (TextView) findViewById(R.id.NameCli);
                 parts = headline.split(":");
                 t.append("BIENVENUE: "+parts[0]);
-
-                Product product1 = databaseAdapter.getProductByBarCode("1234567891248");
 
 
                 //appeller la fonction pour obtenir la liste des porduits
@@ -154,8 +156,8 @@
                 maListViewPerso.setAdapter(mSchedule);
 
 
-            ListView lview = (ListView) findViewById(R.id.listview);
-            ListView lviewTotal = (ListView) findViewById(R.id.listview2);
+             lview = (ListView) findViewById(R.id.listview);
+             lviewTotal = (ListView) findViewById(R.id.listview2);
 
           /*  liste_achat = ScanProduct("Pomme de terre", "1", "1.45");
             liste_achat = ScanProduct("fromage", "1", "2.5");*/
@@ -169,48 +171,7 @@
 
         }
 
-        public void DecodeProtocol(String chaine)
-        {
-            String[] parts = chaine.split("-");
-            String part1 = parts[0];
-            list = new ArrayList<HashMap>();
 
-            if(part1.equals("AUT LISTECOURSE"))
-            {
-                String part2 = parts[1];
-                String[] parts2 = part2.split(";");
-
-                for(int i=0;i < parts2.length;i++)
-                {
-                    String[] s = parts2[i].split(",");
-                    list.add(extract.getArticle(s));
-                }
-
-            }
-
-            if (part1.equals("SCAN"))
-            {
-
-
-            }
-            if(part1.equals("LOC"))
-            {
-                Log.d("EF-BTBee", "LOC :: "+part1);
-            }
-            if(part1.equals("TRAJET"))
-            {
-                Log.d("EF-BTBee", "TRAJET :: "+part1);
-            }
-            if(part1.equals("PUB"))
-            {
-                Log.d("EF-BTBee", "PUB :: "+part1);
-            }
-            if(part1.equals("MSG"))
-            {
-                Log.d("EF-BTBee", "MSG :: "+part1);
-            }
-
-        }
 
         //la fonction qui permet d'ajouter les produits scannÈes
         public ArrayList<ListeCourses> ScanProduct(String Name, String Quantite, String Price){
@@ -260,17 +221,36 @@
         class IncomingHandler extends Handler {
             @Override
             public void handleMessage(Message msg) {
-                if (msg.what == BluetoothService.MESSAGE_TYPE_TEXT) {
+
+
+
+                if (msg.what == BluetoothService.MESSAGE_LOC)
+                {
                     Bundle b = msg.getData();
                     CharSequence text = null;
                     if (b != null) {
                         text = b.getCharSequence("data");
 
-                    } else {
-                        text = "Service responded with empty message";
                     }
                     Log.d("MessengerActivity", "Response: " + text);
-                } else {
+                }
+
+                if (msg.what == BluetoothService.MESSAGE_SCAN)
+                {
+                    Bundle b = msg.getData();
+                    CharSequence text = null;
+                    if (b != null) {
+                        text = b.getCharSequence("data");
+
+                        Product product = databaseAdapter.getProductByBarCode(text.toString());
+                        liste_achat = ScanProduct(product.getName(), "1",  String.valueOf(product.getPrice()));
+                        
+
+                    }
+                    Log.d("MessengerActivity", "Response: " + text);
+                }
+
+                else {
                     super.handleMessage(msg);
                 }
             }
