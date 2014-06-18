@@ -33,8 +33,7 @@ public class NavigationActivity extends Activity {
     private NavigationListener listener = null;
     private Boolean MyListenerIsRegistered = false;
     private String[] idRayon;
-    private List<Point> points;
-
+    private ArrayList<Point> points;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,10 +196,10 @@ public class NavigationActivity extends Activity {
                         public void run() {
                             // TODO Auto-generated method stub
                             ((TextView) gridLayout.getChildAt(position)).setText(positionCourante);
+                            ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
                         }
                     });
                 }
-
             }
         }
     }
