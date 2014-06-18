@@ -34,6 +34,7 @@ public class NavigationActivity extends Activity {
     private Boolean MyListenerIsRegistered = false;
     private String[] idRayon;
     private ArrayList<Point> points;
+    private int positionCourante = -1;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,11 +171,16 @@ public class NavigationActivity extends Activity {
             // No need to check for the action unless the listener will
             // will handle more than one - let's do it anyway
             if (intent.getAction().equals("com.example.handycart.NavigationActivity.DO_SOME")) {
+                if(positionCourante >=0) {
+                    ((TextView) gridLayout.getChildAt(positionCourante)).setCompoundDrawablesWithIntrinsicBounds(
+                            0, 0, 0, 0);
+                }
+
                 String location = intent.getStringExtra("LOC");
-                if(p!=null) {
-                    Point p = convertirIDRayonEnPoint(location);
-                    int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbLignes());
-                    ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
+                 Point p = convertirIDRayonEnPoint(location);
+                    if(p!=null){
+                        positionCourante = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
+                    ((TextView) gridLayout.getChildAt(positionCourante)).setCompoundDrawablesWithIntrinsicBounds(
                             R.drawable.chemin_aetoile, 0, 0, 0);
                 }
             }
