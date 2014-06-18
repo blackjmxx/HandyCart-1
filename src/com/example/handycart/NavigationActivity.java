@@ -175,10 +175,10 @@ public class NavigationActivity extends Activity {
         }
     }
 
-    private void testAetoile(Point courant, Point arrivee, final int positionCourante) {
+    private void testAetoile(Point courant, final Point arrivee, final int positionCourante) {
         Noeud depart = new Noeud();
         depart.setParent(courant);
-        aEtoile aetoile = new aEtoile(depart, arrivee, carte);
+        final aEtoile aetoile = new aEtoile(depart, arrivee, carte);
 
         aetoile.getListeOuverte().put(courant.getId(), depart);
         aetoile.ajouterListeFermee(courant);
@@ -189,14 +189,23 @@ public class NavigationActivity extends Activity {
             aetoile.ajouterCasesAdjacentes(courant);
             if((courant.getX()==arrivee.getX()) && (courant.getY()==arrivee.getY())){
                 aetoile.trouverChemin();
-                for(Point p : aetoile.getChemin()){
+                for(final Point p : aetoile.getChemin()){
                     final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            ((TextView) gridLayout.getChildAt(position)).setText(""+positionCourante);
-                            ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
+                            if(positionCourante == 0){
+                                ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
+                                        R.drawable.chemin_aetoile, 0, 0, 0);
+                            } else if(aetoile.getChemin().indexOf(p) == aetoile.getChemin().size()-1) {
+                                ((TextView) gridLayout.getChildAt(position)).setText(""+positionCourante);
+                            }
+                            if(points.size()>0) {
+                                testAetoile(arrivee, plusProche(), positionCourante + 1);
+                            }
+
+
                         }
                     });
                 }
