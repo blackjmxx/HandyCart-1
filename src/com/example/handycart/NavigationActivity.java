@@ -80,7 +80,7 @@ public class NavigationActivity extends Activity {
                     }
                     gridLayout.addView(tv, i);
                 }
-                testAetoile(new Point(0,0), plusProche(),0);
+               // testAetoile(new Point(0,0), plusProche(),0);
             }
         });
     }
@@ -170,7 +170,13 @@ public class NavigationActivity extends Activity {
             // No need to check for the action unless the listener will
             // will handle more than one - let's do it anyway
             if (intent.getAction().equals("com.example.handycart.NavigationActivity.DO_SOME")) {
-                // Do something
+                String location = intent.getStringExtra("LOC");
+                if(p!=null) {
+                    Point p = convertirIDRayonEnPoint(location);
+                    int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbLignes());
+                    ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
+                            R.drawable.chemin_aetoile, 0, 0, 0);
+                }
             }
         }
     }
