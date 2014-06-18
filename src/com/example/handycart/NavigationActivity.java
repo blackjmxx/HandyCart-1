@@ -204,14 +204,13 @@ public class NavigationActivity extends Activity {
                             } else if (finalIndex == nbElements -1) {
                                 ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
                             }
-                            if (points.size() > 0) {
-                                testAetoile(arrivee, plusProche(), positionCourante + 1);
-                            }
-
 
                         }
                     });
                     index++;
+                }
+                if (points.size() > 0) {
+                    testAetoile(arrivee, plusProche(), positionCourante + 1);
                 }
             }
         }
