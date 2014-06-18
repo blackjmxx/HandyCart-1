@@ -195,7 +195,7 @@ public class NavigationActivity extends Activity {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            ((TextView) gridLayout.getChildAt(position)).setText(positionCourante);
+                            ((TextView) gridLayout.getChildAt(position)).setText(""+positionCourante);
                             ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
                         }
                     });
