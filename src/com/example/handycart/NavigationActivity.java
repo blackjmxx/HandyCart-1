@@ -178,7 +178,7 @@ public class NavigationActivity extends Activity {
     private void testAetoile(Point courant, final Point arrivee, final int positionCourante) {
         Noeud depart = new Noeud();
         depart.setParent(courant);
-        final aEtoile aetoile = new aEtoile(depart, arrivee, carte);
+        aEtoile aetoile = new aEtoile(depart, arrivee, carte);
 
         aetoile.getListeOuverte().put(courant.getId(), depart);
         aetoile.ajouterListeFermee(courant);
@@ -189,25 +189,29 @@ public class NavigationActivity extends Activity {
             aetoile.ajouterCasesAdjacentes(courant);
             if((courant.getX()==arrivee.getX()) && (courant.getY()==arrivee.getY())){
                 aetoile.trouverChemin();
+                final int nbElements = aetoile.getChemin().size();
+                int index = 0;
                 for(final Point p : aetoile.getChemin()){
                     final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
+                    final int finalIndex = index;
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            if(positionCourante == 0){
+                            if (positionCourante == 0) {
                                 ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
                                         R.drawable.chemin_aetoile, 0, 0, 0);
-                            } else if(aetoile.getChemin().indexOf(p) == aetoile.getChemin().size()-1) {
-                                ((TextView) gridLayout.getChildAt(position)).setText(""+positionCourante);
+                            } else if (finalIndex == nbElements -1) {
+                                ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
                             }
-                            if(points.size()>0) {
+                            if (points.size() > 0) {
                                 testAetoile(arrivee, plusProche(), positionCourante + 1);
                             }
 
 
                         }
                     });
+                    index++;
                 }
             }
         }
