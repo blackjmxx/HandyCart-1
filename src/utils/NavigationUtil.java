@@ -35,12 +35,10 @@ public class NavigationUtil {
 		return x*nbLignes + y;
 	}
 
-	public static int[] convertirPositionEnPoint(int position, int nbLignes){
-		int x = position / nbLignes;
-		int y = position % nbLignes;
-		return new int[]{x,y};
-	}
-
-	
+	public static int[] convertirPositionEnPoint(int position, int nbLignes) {
+        int x = position / nbLignes;
+        int y = position % nbLignes;
+        return new int[]{x, y};
+    }
 
 }

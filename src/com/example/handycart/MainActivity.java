@@ -72,6 +72,7 @@ import static com.example.handycart.Constant.TOTAL;
             Intent intent = getIntent();
              databaseAdapter = DatabaseAdapter
                     .getInstanceOfDatabaseAdapter(this);
+            String[] idRayon = null;
             if (null != intent) {
                String  headline = intent.getStringExtra("data");
                 t = (TextView) findViewById(R.id.NameCli);
@@ -82,12 +83,12 @@ import static com.example.handycart.Constant.TOTAL;
                 //appeller la fonction pour obtenir la liste des porduits
 
                 String[] part2= parts[1].split(",");
-
+                idRayon = new String[parts[2].length()];
                 for (int i=0; i <part2.length ; i++)
                 {
                     String[] parts3 = part2[i].split("=");
-
                     Product product = databaseAdapter.getProductByID(Integer.parseInt(parts3[0]));
+                    idRayon[i] = i+"_B";
                     liste_achat = AddList(product.getName(), parts3[1], String.valueOf(product.getPrice()));
                 }
 
@@ -101,7 +102,7 @@ import static com.example.handycart.Constant.TOTAL;
 
             // Android tab
             Intent intentAndroid = new Intent().setClass(this, NavigationActivity.class);
-            intentAndroid.putExtra("id Rayon", parts[1]);
+            intentAndroid.putExtra("id Rayon", idRayon);
             TabSpec tabSpecAndroid = tabHost
                 .newTabSpec("Android")
                 .setIndicator("Navigation")
