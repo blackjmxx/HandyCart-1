@@ -81,9 +81,25 @@ public class NavigationActivity extends Activity {
                     }
                     gridLayout.addView(tv, i);
                 }
-                testAetoile(new Point(0,0), points.get(0));
+                testAetoile(new Point(0,0), plusProche(),0);
             }
         });
+    }
+
+    private Point plusProche(){
+        Point p = null;
+        double distanceMin = Double.MAX_VALUE;
+        for(Point pTemp : points){
+            double distance = NavigationUtil.distanceEuclidienne(new Point(0,0), pTemp);
+            if(distance < distanceMin) {
+                p = pTemp;
+                distanceMin = distance;
+            }
+        }
+        if(p!=null) {
+            points.remove(p);
+        }
+        return p;
     }
 
     private Point convertirIDRayonEnPoint(String s) {
@@ -160,7 +176,7 @@ public class NavigationActivity extends Activity {
         }
     }
 
-    private void testAetoile(Point courant, Point arrivee) {
+    private void testAetoile(Point courant, Point arrivee, final int positionCourante) {
         Noeud depart = new Noeud();
         depart.setParent(courant);
         aEtoile aetoile = new aEtoile(depart, arrivee, carte);
@@ -177,15 +193,14 @@ public class NavigationActivity extends Activity {
                 for(Point p : aetoile.getChemin()){
                     final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
                     handler.post(new Runnable() {
-
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
-                                    R.drawable.chemin_aetoile, 0, 0, 0);
+                            ((TextView) gridLayout.getChildAt(position)).setText(positionCourante);
                         }
                     });
                 }
+
             }
         }
     }
