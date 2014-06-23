@@ -71,11 +71,13 @@ public class DatabaseAdapter extends SQLiteOpenHelper {
 
         try {
 
+            getReadableDatabase();
+
             copyDataBase();
 
         } catch (IOException e) {
 
-            throw new Error("Error copying database");
+            throw new Error("Error copying database "+ e.getMessage());
         }
     }
 

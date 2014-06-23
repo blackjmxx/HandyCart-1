@@ -183,6 +183,7 @@ public class BluetoothService extends Service {
 
     protected void listen() {
         try {
+
             _serverSocket = _bluetooth.listenUsingRfcommWithServiceRecord(PROTOCOL_SCHEME_RFCOMM,
                     UUID.fromString("a60f35f0-b93a-11de-8a39-08002009c666"));
 

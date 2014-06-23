@@ -50,9 +50,10 @@ public final class R {
         public static final int icon_slm_config=0x7f02000e;
         public static final int lait=0x7f02000f;
         public static final int layout_border=0x7f020010;
-        public static final int right=0x7f020011;
-        public static final int vaisselle=0x7f020012;
-        public static final int wrong=0x7f020013;
+        public static final int map=0x7f020011;
+        public static final int right=0x7f020012;
+        public static final int vaisselle=0x7f020013;
+        public static final int wrong=0x7f020014;
     }
     public static final class id {
         public static final int FirstText=0x7f090004;

@@ -83,7 +83,7 @@ import static com.example.handycart.Constant.TOTAL;
                 //appeller la fonction pour obtenir la liste des porduits
 
                 String[] part2= parts[1].split(",");
-                idRayon = new String[parts[2].length()];
+                idRayon = new String[part2.length];
                 for (int i=0; i <part2.length ; i++)
                 {
                     String[] parts3 = part2[i].split("=");
@@ -233,6 +233,7 @@ import static com.example.handycart.Constant.TOTAL;
                         text = b.getCharSequence("data");
 
                         Intent i = new Intent();
+                        i.putExtra("LOC",text);
                         i.setAction("com.example.handycart.NavigationActivity.DO_SOME");
                         sendBroadcast(i);
 
@@ -248,7 +249,7 @@ import static com.example.handycart.Constant.TOTAL;
                         text = b.getCharSequence("data");
 
                         Product product = databaseAdapter.getProductByBarCode(text.toString());
-                        liste_achat = ScanProduct(product.getName(), "1",  String.valueOf(product.getPrice()));
+                        liste_achat = Scanner(product.getName(), "1",  String.valueOf(product.getPrice()));
 
                         lview.setAdapter(new listViewCourses(mContext, liste_achat));
                         listviewAdapterPrice adapterTotal = new listviewAdapterPrice(MainActivity.this, listTotal);
@@ -316,6 +317,78 @@ import static com.example.handycart.Constant.TOTAL;
 
         public static Context getContext() {
             return mContext;
+        }
+
+        public void RemoveElements(ArrayList<ListeCourses> recherche, int x){
+            recherche.remove(x);
+        }
+
+        // à ajouter dans le main
+        public void IncreseQuantite(ArrayList<ListeCourses> recherche, int i){
+            int quantite;
+            recherche.get(i).getItemQuantite();
+            quantite = Integer.valueOf(recherche.get(i).getItemQuantite());
+            quantite ++;
+
+            recherche.get(i).setItemQuantite(String.valueOf(quantite));
+
+        }
+        public int RechercheElements(ArrayList<ListeCourses> recherche,String element){
+            final int size = recherche.size();
+            for (int i = 0; i < size; i++) {
+                final String label = recherche.get(i).getName();
+                if (label != null && label.equals(element)) {
+
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public ArrayList<ListeCourses> Scanner (String Name, String Quantite, String Price){
+            int x = RechercheElements(results, Name);
+            ListeCourses listeCourse = new ListeCourses();
+            if (x != -1){
+                Log.i("informations", " la recherche est différente de -1"+x);
+
+                if (results.get(x).getImageNumber() == 1){
+                    Log.i("informations", " le produit existe mais n'a pas été scanné");
+
+                    RemoveElements(results, x);
+
+                    listeCourse.setName(Name);
+                    listeCourse.setItemQuantite(Quantite);
+                    listeCourse.setPrice(Price);
+                    listeCourse.setImageNumber(0);
+                    results.add(listeCourse);
+
+                    RealPrice += Double.parseDouble(Price);
+                    CalculTotal(String.valueOf(RealPrice));
+
+                }
+                else {
+                    IncreseQuantite(results, x);
+                    RealPrice += Double.parseDouble(Price);
+                    CalculTotal(String.valueOf(RealPrice));
+
+                }
+
+            }
+
+            else {
+                Log.i("informations", " la recherche est égale a -1");
+                listeCourse.setName(Name);
+                listeCourse.setItemQuantite(Quantite);
+                listeCourse.setPrice(Price);
+                listeCourse.setImageNumber(0);
+                results.add(listeCourse);
+                RealPrice += Double.parseDouble(Price);
+                CalculTotal(String.valueOf(RealPrice));
+
+            }
+
+
+            return results;
         }
 
 
