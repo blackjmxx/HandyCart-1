@@ -46,14 +46,14 @@ public class aEtoile {
 				Point ptmp = new Point(i, j);
 				if(!NavigationUtil.dejaPresentDansListe(ptmp, listeFermee)){
 					double distance = NavigationUtil.distanceEuclidienne(ptmp, p);
-					float coutG = listeFermee.get(p.getId()).getCoutG() + (float)distance;
+					double coutG = listeFermee.get(p.getId()).getCoutG() + (float)distance;
 					ntmp.setCoutG(coutG);
-					ntmp.setCoutH((float) NavigationUtil.distanceEuclidienne(ptmp, arrivee));
+					ntmp.setCoutH(NavigationUtil.distanceEuclidienne(ptmp, arrivee));
 					ntmp.setCoutF(ntmp.getCoutG() + ntmp.getCoutH());
 					ntmp.setParent(p);
 					
 					if(NavigationUtil.dejaPresentDansListe(ptmp, listeOuverte)){
-						if(ntmp.getCoutF() < listeOuverte.get(ptmp.getId()).getCoutF()){
+						if(ntmp.getCoutF() <= listeOuverte.get(ptmp.getId()).getCoutF()){
 							listeOuverte.remove(ptmp.getId());
 							listeOuverte.put(ptmp.getId(), ntmp);
 						}
@@ -66,14 +66,14 @@ public class aEtoile {
 	
 	public Point trouverMeilleurNoeud(){
 		Point p = null;
-		float coutF = Float.MAX_VALUE;
+		double coutF = Double.MAX_VALUE;
 		int i = 0;
 		for(Entry<String, Noeud> entry : listeOuverte.entrySet()){
 			if(i == 0){
 				p = NavigationUtil.convertirIDenPoint(entry.getKey());
 				i++;
 			}
-			if(entry.getValue().getCoutF() < coutF){
+			if(entry.getValue().getCoutF() <= coutF){
 				coutF = entry.getValue().getCoutF();
 				p = NavigationUtil.convertirIDenPoint(entry.getKey());
 			}

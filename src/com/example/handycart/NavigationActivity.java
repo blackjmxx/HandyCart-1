@@ -8,19 +8,18 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 import android.widget.TextView;
 
-import android.widget.Toast;
 import data.Carte;
 import data.Noeud;
 import data.Point;
 import utils.NavigationUtil;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class NavigationActivity extends Activity {
@@ -31,15 +30,19 @@ public class NavigationActivity extends Activity {
     private Carte carte;
     private Handler handler;
     private NavigationListener listener = null;
-    private Boolean MyListenerIsRegistered = false;
     private String[] idRayon;
-    private ArrayList<Point> points;
-    private int positionCourante = -1;
+    private ArrayList<Point> points, pointsTemp;
+    private ArrayList<TextView> casesAReinitialiser;
+    private int positionCarte = 0;
+    private Thread aEtoileThread;
+    private boolean isRunning = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation);
         points = new ArrayList<Point>();
+        pointsTemp = new ArrayList<Point>();
+        casesAReinitialiser = new ArrayList<TextView>();
         listener = new NavigationListener();
         carte = new Carte();
         handler = new Handler();
@@ -48,6 +51,7 @@ public class NavigationActivity extends Activity {
             Point p = convertirIDRayonEnPoint(idRayon[i]);
             if(p != null){
                 points.add(p);
+                pointsTemp.add(p);
             }
         }
         registerReceiver(listener, new IntentFilter("com.example.handycart.NavigationActivity.DO_SOME"));
@@ -81,23 +85,25 @@ public class NavigationActivity extends Activity {
                     }
                     gridLayout.addView(tv, i);
                 }
-               // testAetoile(new Point(0,0), plusProche(),0);
+                aEtoileThread = new Thread(new AEtoileRunabble());
+                aEtoileThread.start();
+               // testAetoile(new Point(0,0), plusProche(new Point(0,0)),0);
             }
         });
     }
 
-    private Point plusProche(){
+    private Point plusProche(Point depart){
         Point p = null;
         double distanceMin = Double.MAX_VALUE;
-        for(Point pTemp : points){
-            double distance = NavigationUtil.distanceEuclidienne(new Point(0,0), pTemp);
+        for(Point pTemp : pointsTemp){
+            double distance = NavigationUtil.distanceEuclidienne(depart, pTemp);
             if(distance < distanceMin) {
                 p = pTemp;
                 distanceMin = distance;
             }
         }
         if(p!=null) {
-            points.remove(p);
+            pointsTemp.remove(p);
         }
         return p;
     }
@@ -171,23 +177,33 @@ public class NavigationActivity extends Activity {
             // No need to check for the action unless the listener will
             // will handle more than one - let's do it anyway
             if (intent.getAction().equals("com.example.handycart.NavigationActivity.DO_SOME")) {
-                if(positionCourante >=0) {
-                    ((TextView) gridLayout.getChildAt(positionCourante)).setCompoundDrawablesWithIntrinsicBounds(
-                            0, 0, 0, 0);
-                }
+                    if (positionCarte >= 0) {
+                        reinitialiserCases();
 
-                String location = intent.getStringExtra("LOC");
-                 Point p = convertirIDRayonEnPoint(location);
-                    if(p!=null){
-                        positionCourante = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
-                    ((TextView) gridLayout.getChildAt(positionCourante)).setCompoundDrawablesWithIntrinsicBounds(
-                            R.drawable.chemin_aetoile, 0, 0, 0);
-                }
+                    }
+
+                    String location = intent.getStringExtra("LOC");
+                    Point p = convertirIDRayonEnPoint(location);
+                    if (p != null) {
+                        copierVersPointsTemp();
+                        positionCarte = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
+                        ((TextView) gridLayout.getChildAt(positionCarte)).setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.chemin_aetoile, 0, 0, 0);
+                        casesAReinitialiser.add(((TextView) gridLayout.getChildAt(positionCarte)));
+                        aEtoileThread.interrupt();
+                        aEtoileThread = new Thread(new AEtoileRunabble());
+                        aEtoileThread.start();
+                    }
             }
         }
     }
 
-    private void testAetoile(Point courant, final Point arrivee, final int positionCourante) {
+    private void execAetoile(Point courant, final Point arrivee, final int positionCourante) {
+        if(courant.getId().equalsIgnoreCase(arrivee.getId())){
+            ((TextView) gridLayout.getChildAt(positionCarte)).setText("" + positionCourante);
+            pointsTemp.remove(arrivee);
+            execAetoile(arrivee, plusProche(arrivee), positionCourante + 1);
+        }
         Noeud depart = new Noeud();
         depart.setParent(courant);
         aEtoile aetoile = new aEtoile(depart, arrivee, carte);
@@ -202,30 +218,89 @@ public class NavigationActivity extends Activity {
             if((courant.getX()==arrivee.getX()) && (courant.getY()==arrivee.getY())){
                 aetoile.trouverChemin();
                 final int nbElements = aetoile.getChemin().size();
-                int index = 0;
+                Point precedent = null;
                 for(final Point p : aetoile.getChemin()){
                     final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
-                    final int finalIndex = index;
+                    final Point finalCourant = courant;
+                    final Point finalPrecedent = precedent;
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             // TODO Auto-generated method stub
-                            if (positionCourante == 0) {
-                                ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
-                                        R.drawable.chemin_aetoile, 0, 0, 0);
-                            } else if (finalIndex == nbElements -1) {
-                                ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
-                            }
+                            if(!p.getId().equalsIgnoreCase(arrivee.getId())){
+                                if(positionCourante==0) {
+                                    ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
+                                            directionImage(p, finalPrecedent), 0, 0, 0);
+                                }
 
+                            } else {
+                                ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
+                                ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
+                                ((TextView) gridLayout.getChildAt(position)).setGravity(Gravity.CENTER);
+                            }
+                            casesAReinitialiser.add((TextView) gridLayout.getChildAt(position));
                         }
                     });
-                    index++;
+                    precedent = p;
                 }
-                if (points.size() > 0) {
-                    testAetoile(arrivee, plusProche(), positionCourante + 1);
+                if (pointsTemp.size() > 0) {
+                    execAetoile(arrivee, plusProche(arrivee), positionCourante + 1);
                 }
             }
         }
     }
 
+    private int directionImage(Point p, Point precedent){
+        int x = p.getX() - precedent.getX();
+        int y = p.getY() - precedent.getY();
+        if(x == -1 && y == -1){
+            return R.drawable.footsteps_rd;
+        }
+        if(x == 1 && y == 1){
+            return R.drawable.footsteps_lu;
+        }
+        if(x == 1 && y == 0){
+            return R.drawable.footsteps_u;
+        }
+        if(x == 0 && y == 1){
+            return R.drawable.footsteps_l;
+        }
+        if(x == 0 && y == -1){
+            return R.drawable.footsteps_r;
+        }
+        if(x == -1 && y == 0){
+            return R.drawable.footsteps_d;
+        }
+        if(x == 1 && y == -1){
+            return R.drawable.footsteps_ru;
+        }
+        if(x == -1 && y == 1){
+            return R.drawable.footsteps_ld;
+        }
+        return R.drawable.chemin_aetoile;
+    }
+
+    private void reinitialiserCases(){
+        for(TextView t : casesAReinitialiser){
+            t.setText("");
+            t.setBackgroundColor(Color.WHITE);
+            t.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        }
+        casesAReinitialiser.clear();
+    }
+
+    private  void copierVersPointsTemp(){
+        for(Point p : points){
+            pointsTemp.add(p);
+        }
+    }
+    
+    class AEtoileRunabble implements Runnable {
+        @Override
+        public void run() {
+            int[] coordonnees = NavigationUtil.convertirPositionEnPoint(positionCarte, carte.getNbColonnes());
+            Point p = new Point(coordonnees[0], coordonnees[1]);
+            execAetoile(p, plusProche(p), 0);
+        }
+    }
 }

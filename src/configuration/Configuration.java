@@ -3,7 +3,7 @@ package configuration;
 public class Configuration {
 	
 	/**
-	 * Paramètres de connexion à la base de données
+	 * Parametres de connexion a la base de donnees
 	 */
 	public static final String DATABASE_PATH = "/data/data/com.example.handycart/databases/";
 	

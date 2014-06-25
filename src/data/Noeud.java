@@ -3,38 +3,38 @@ package data;
 
 public class Noeud {
 
-    private float coutF;
-    private float coutG;
-    private float coutH;
+    private double coutF;
+    private double coutG;
+    private double coutH;
     private Point parent;
 
     public Noeud() {
         this.coutF = Float.MAX_VALUE;
-        this.coutG = 0.0f;
-        this.coutH = 0.0f;
+        this.coutG = 0.0;
+        this.coutH = 0.0;
         this.parent = null;
     }
 
-    public Noeud(float coutF, float coutG, float coutH, Point parent) {
+    public Noeud(double coutF, double coutG, double coutH, Point parent) {
         this.coutF = coutF;
         this.coutG = coutG;
         this.coutH = coutH;
         this.parent = parent;
     }
 
-    public float getCoutF() {
+    public double getCoutF() {
         return coutF;
     }
 
-    public void setCoutF(float coutF) {
+    public void setCoutF(double coutF) {
         this.coutF = coutF;
     }
 
-    public float getCoutG() {
+    public double getCoutG() {
         return coutG;
     }
 
-    public void setCoutG(float coutG) {
+    public void setCoutG(double coutG) {
         this.coutG = coutG;
     }
 
@@ -46,11 +46,11 @@ public class Noeud {
         this.parent = parent;
     }
 
-    public float getCoutH() {
+    public double getCoutH() {
         return coutH;
     }
 
-    public void setCoutH(float coutH) {
+    public void setCoutH(double coutH) {
         this.coutH = coutH;
     }
 }

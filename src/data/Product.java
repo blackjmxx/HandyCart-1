@@ -1,5 +1,7 @@
 package data;
 
+import android.os.Parcelable;
+
 public class Product {
 
 	private int id;

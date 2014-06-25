@@ -23,7 +23,7 @@ public class Category {
 
 	public String toString() {
 
-		return "Catégorie : " + id + " " + name + " " + localisation + " "
+		return "Categorie : " + id + " " + name + " " + localisation + " "
 				+ family;
 	}
 }
