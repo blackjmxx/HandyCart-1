@@ -87,12 +87,14 @@ android:layout_height="fill_parent">
             </FrameLayout>
 
         <ListView
-android:id="@+id/listview3"
-android:layout_width="fill_parent"
-android:layout_height="100dp"
-android:background="#D0D0D0"
-android:cacheColorHint="#00000000">
-</ListView>
+            android:id="@+id/listview3"
+            android:layout_width="fill_parent"
+            android:layout_height="140dp"
+            android:background="#D0D0D0"
+            android:cacheColorHint="#00000000"
+            tools:listitem ="@layout/promotions"
+            >
+        </ListView>
     </LinearLayout>
 
 </LinearLayout>

@@ -2,6 +2,22 @@ package data;
 
 public class Category {
 
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getLocalisation() {
+		return localisation;
+	}
+
+	public String getFamily() {
+		return family;
+	}
+
 	private int id;
 
 	private String name;
