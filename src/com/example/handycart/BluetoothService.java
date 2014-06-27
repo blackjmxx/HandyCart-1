@@ -196,10 +196,10 @@ public class BluetoothService extends Service {
 
                     try {
                         InputStream inputStream = socket.getInputStream();
-                        byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[512];
                         int bytes;
 
-                        bytes = inputStream.read(buffer);
+                        bytes = inputStream.read(buffer, 0, buffer.length);
                         readMessage = new String(buffer, 0, bytes);
 
                         if(readMessage!=null)

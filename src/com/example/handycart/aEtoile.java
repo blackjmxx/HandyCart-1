@@ -32,32 +32,39 @@ public class aEtoile {
 	
 	public void ajouterCasesAdjacentes(Point p){
 		Noeud ntmp = new Noeud();
+        /* on met tous les noeud adjacents dans la liste ouverte (+vérif) */
 		for(int i = p.getX()-1; i<=p.getX()+1; i++){
-			if(i < 0 || i >= carte.getNbLignes()) 
+			if(i < 0 || i >= carte.getNbLignes())  /* en dehors de l'image, on oublie */
 				continue;
-			for(int j = p.getY() -1; j<=p.getY()+1; j++){
+			for(int j = p.getY() -1; j<=p.getY()+1; j++){ /* en dehors de l'image, on oublie */
 				if(j < 0 || j >= carte.getNbColonnes()) 
 					continue;
-				if(i==p.getX() && j==p.getY())
+				if(i==p.getX() && j==p.getY())  /* case actuelle, on oublie */
 					continue;
 				int position = NavigationUtil.convertirPointEnPosition(i, j, carte.getNbColonnes());
-				if(carte.getModeleCarte().charAt(position)=='1')
+				if(carte.getModeleCarte().charAt(position)=='1') /* obstace, terrain non franchissable, on oublie */
 					continue;
 				Point ptmp = new Point(i, j);
 				if(!NavigationUtil.dejaPresentDansListe(ptmp, listeFermee)){
+                    /* le noeud n'est pas déjà présent dans la liste fermée */
+                    /* calcul du cout G du noeud en cours d'étude : cout du parent + distance jusqu'au parent */
 					double distance = NavigationUtil.distanceEuclidienne(ptmp, p);
 					double coutG = listeFermee.get(p.getId()).getCoutG() + (float)distance;
 					ntmp.setCoutG(coutG);
+                    /* calcul du cout H du noeud à la destination */
 					ntmp.setCoutH(NavigationUtil.distanceEuclidienne(ptmp, arrivee));
 					ntmp.setCoutF(ntmp.getCoutG() + ntmp.getCoutH());
 					ntmp.setParent(p);
 					
 					if(NavigationUtil.dejaPresentDansListe(ptmp, listeOuverte)){
-						if(ntmp.getCoutF() <= listeOuverte.get(ptmp.getId()).getCoutF()){
+                        /* le noeud est déjà présent dans la liste ouverte, il faut comparer les couts */
+						if(ntmp.getCoutF() < listeOuverte.get(ptmp.getId()).getCoutF()){
+                            /* si le nouveau chemin est meilleur, on met à jour */
 							listeOuverte.remove(ptmp.getId());
 							listeOuverte.put(ptmp.getId(), ntmp);
 						}
-					} else 
+					} else
+                        /* le noeud n'est pas présent dans la liste ouverte, on l'y ajoute */
 						listeOuverte.put(ptmp.getId(), ntmp);
 				}
 			}
@@ -73,7 +80,7 @@ public class aEtoile {
 				p = NavigationUtil.convertirIDenPoint(entry.getKey());
 				i++;
 			}
-			if(entry.getValue().getCoutF() <= coutF){
+			if(entry.getValue().getCoutF() < coutF){
 				coutF = entry.getValue().getCoutF();
 				p = NavigationUtil.convertirIDenPoint(entry.getKey());
 			}
@@ -143,10 +150,10 @@ public class aEtoile {
 
 	public static void main(String[] args) {
 		Noeud depart = new Noeud();
+        Carte carte = new Carte();
 		Point courant = new Point(0, 0);
 		depart.setParent(courant);
-		Point arrivee = new Point(20, 0);
-		Carte carte = new Carte();
+		Point arrivee = new Point(carte.getNbLignes()-1, carte.getNbColonnes()-1);
 		aEtoile aetoile = new aEtoile(depart, arrivee, carte);
 		
 		aetoile.getListeOuverte().put(courant.getId(), depart);

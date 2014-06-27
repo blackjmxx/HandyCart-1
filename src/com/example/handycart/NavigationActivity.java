@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
@@ -55,7 +54,8 @@ public class NavigationActivity extends Activity {
             }
         }
         registerReceiver(listener, new IntentFilter("com.example.handycart.NavigationActivity.DO_SOME"));
-
+        registerReceiver(listener, new IntentFilter("com.example.handycart.navigIntent"));
+        registerReceiver(listener, new IntentFilter("com.example.handycart.navigIntent2"));
 
         gridLayout = (GridLayout) findViewById(R.id.tablayout);
         gridLayout.setRowCount(carte.getNbLignes());
@@ -80,6 +80,10 @@ public class NavigationActivity extends Activity {
                     TextView tv = new TextView(NavigationActivity.this.getApplicationContext());
                     tv.setWidth(width/carte.getNbColonnes());
                     tv.setHeight(height/carte.getNbLignes());
+                    if(i == positionCarte){
+                        tv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.panier,0,0,0);
+                        casesAReinitialiser.add(tv);
+                    }
                     if (carte.getModeleCarte().charAt(i)=='1') {
                         tv.setBackgroundColor(Color.argb(255, 255, 215, 0));
                     }
@@ -87,16 +91,19 @@ public class NavigationActivity extends Activity {
                 }
                 aEtoileThread = new Thread(new AEtoileRunabble());
                 aEtoileThread.start();
-               // testAetoile(new Point(0,0), plusProche(new Point(0,0)),0);
             }
         });
     }
 
     private Point plusProche(Point depart){
         Point p = null;
-        double distanceMin = Double.MAX_VALUE;
+//        double distanceMin = Double.MAX_VALUE;
+        int distanceMin = Integer.MAX_VALUE;
+        int[] coordonnees = NavigationUtil.convertirPositionEnPoint(positionCarte, carte.getNbColonnes());
+        Point debut = new Point(coordonnees[0], coordonnees[1]);
         for(Point pTemp : pointsTemp){
-            double distance = NavigationUtil.distanceEuclidienne(depart, pTemp);
+            //double distance = NavigationUtil.distanceEuclidienne(depart, pTemp);
+            int distance = execAetoile(debut, pTemp, 0, false);
             if(distance < distanceMin) {
                 p = pTemp;
                 distanceMin = distance;
@@ -188,21 +195,70 @@ public class NavigationActivity extends Activity {
                         copierVersPointsTemp();
                         positionCarte = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
                         ((TextView) gridLayout.getChildAt(positionCarte)).setCompoundDrawablesWithIntrinsicBounds(
-                                R.drawable.chemin_aetoile, 0, 0, 0);
+                                R.drawable.panier, 0, 0, 0);
                         casesAReinitialiser.add(((TextView) gridLayout.getChildAt(positionCarte)));
                         aEtoileThread.interrupt();
                         aEtoileThread = new Thread(new AEtoileRunabble());
                         aEtoileThread.start();
                     }
+            } else if (intent.getAction().equals("com.example.handycart.navigIntent")){
+                String localisation = intent.getStringExtra("position");
+                Point p = convertirIDRayonEnPoint(localisation);
+                boolean dejaPresent = presentDansListePoints(p.getId());
+                points.add(p);
+                if(!dejaPresent) {
+                    copierVersPointsTemp();
+                    reinitialiserCases();
+                    aEtoileThread.interrupt();
+                    aEtoileThread = new Thread(new AEtoileRunabble());
+                    aEtoileThread.start();
+                }
+            }
+
+            else if (intent.getAction().equals("com.example.handycart.navigIntent2")){
+                String localisation = intent.getStringExtra("scan");
+                Point p = convertirIDRayonEnPoint(localisation);
+                retirerListe(p.getId());
+                if(!presentDansListePoints(p.getId())) {
+                    copierVersPointsTemp();
+                    reinitialiserCases();
+                    aEtoileThread.interrupt();
+                    aEtoileThread = new Thread(new AEtoileRunabble());
+                    aEtoileThread.start();
+                }
             }
         }
     }
 
-    private void execAetoile(Point courant, final Point arrivee, final int positionCourante) {
+    private boolean presentDansListePoints(String id){
+        for(Point ptemp : points){
+            if(ptemp.getId().equalsIgnoreCase(id))
+                return true;
+        }
+        return false;
+    }
+
+    private void retirerListe(String id){
+        for(Point ptemp : points){
+            if(ptemp.getId().equalsIgnoreCase(id))
+                points.remove(ptemp);
+        }
+    }
+
+    private int execAetoile(Point courant, final Point arrivee, final int positionCourante, boolean recursif) {
         if(courant.getId().equalsIgnoreCase(arrivee.getId())){
-            ((TextView) gridLayout.getChildAt(positionCarte)).setText("" + positionCourante);
-            pointsTemp.remove(arrivee);
-            execAetoile(arrivee, plusProche(arrivee), positionCourante + 1);
+            if(recursif) {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ((TextView) gridLayout.getChildAt(positionCarte)).setText("" + positionCourante);
+                    }
+                });
+                pointsTemp.remove(arrivee);
+                execAetoile(arrivee, plusProche(arrivee), positionCourante + 1, true);
+            } else {
+                return 0;
+            }
         }
         Noeud depart = new Noeud();
         depart.setParent(courant);
@@ -215,39 +271,43 @@ public class NavigationActivity extends Activity {
             courant = aetoile.trouverMeilleurNoeud();
             aetoile.ajouterListeFermee(courant);
             aetoile.ajouterCasesAdjacentes(courant);
-            if((courant.getX()==arrivee.getX()) && (courant.getY()==arrivee.getY())){
+            if((courant.getX()==arrivee.getX()) && (courant.getY()==arrivee.getY())) {
                 aetoile.trouverChemin();
-                final int nbElements = aetoile.getChemin().size();
                 Point precedent = null;
-                for(final Point p : aetoile.getChemin()){
-                    final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
-                    final Point finalCourant = courant;
-                    final Point finalPrecedent = precedent;
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            // TODO Auto-generated method stub
-                            if(!p.getId().equalsIgnoreCase(arrivee.getId())){
-                                if(positionCourante==0) {
+                if (recursif) {
+                    for (final Point p : aetoile.getChemin()) {
+                        final int position = NavigationUtil.convertirPointEnPosition(p.getX(), p.getY(), carte.getNbColonnes());
+                        final Point finalCourant = courant;
+                        final Point finalPrecedent = precedent;
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                // TODO Auto-generated method stub
+                                if (!p.getId().equalsIgnoreCase(arrivee.getId())) {
+
                                     ((TextView) gridLayout.getChildAt(position)).setCompoundDrawablesWithIntrinsicBounds(
                                             directionImage(p, finalPrecedent), 0, 0, 0);
-                                }
 
-                            } else {
-                                ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
-                                ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
-                                ((TextView) gridLayout.getChildAt(position)).setGravity(Gravity.CENTER);
+
+                                } else {
+                                    ((TextView) gridLayout.getChildAt(position)).setText("" + positionCourante);
+                                    ((TextView) gridLayout.getChildAt(position)).setTextColor(Color.BLACK);
+                                    ((TextView) gridLayout.getChildAt(position)).setGravity(Gravity.CENTER);
+                                }
+                                casesAReinitialiser.add((TextView) gridLayout.getChildAt(position));
                             }
-                            casesAReinitialiser.add((TextView) gridLayout.getChildAt(position));
-                        }
-                    });
-                    precedent = p;
-                }
-                if (pointsTemp.size() > 0) {
-                    execAetoile(arrivee, plusProche(arrivee), positionCourante + 1);
+                        });
+                        precedent = p;
+                    }
+                    if (pointsTemp.size() > 0) {
+                        execAetoile(arrivee, plusProche(arrivee), positionCourante + 1, true);
+                    }
+                } else {
+                    return aetoile.getChemin().size();
                 }
             }
         }
+        return 0;
     }
 
     private int directionImage(Point p, Point precedent){
@@ -300,7 +360,8 @@ public class NavigationActivity extends Activity {
         public void run() {
             int[] coordonnees = NavigationUtil.convertirPositionEnPoint(positionCarte, carte.getNbColonnes());
             Point p = new Point(coordonnees[0], coordonnees[1]);
-            execAetoile(p, plusProche(p), 0);
+            Point arrivee = plusProche(p);
+            execAetoile(p, arrivee, 0, true);
         }
     }
 }

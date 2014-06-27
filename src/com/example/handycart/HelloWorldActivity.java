@@ -29,15 +29,6 @@ public class HelloWorldActivity extends Activity {
 		DatabaseAdapter databaseAdapter = DatabaseAdapter
 				.getInstanceOfDatabaseAdapter(this);
 
-		Product product = databaseAdapter.getProductByBarCode("1234567891248");
 
-		if (product != null) {
-
-			System.out.println(product.toString());
-
-		} else {
-
-			System.out.println("Produit inconnu");
-		}
 	}
 }

@@ -14,12 +14,11 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-
-import java.util.ArrayList;
-
 import dao.DatabaseAdapter;
 import data.Category;
 import data.Product;
+
+import java.util.ArrayList;
 
 public class SearchActivity extends Activity implements OnItemSelectedListener{
     ArrayAdapter<String> adapter1,adapter2;
@@ -47,7 +46,7 @@ public class SearchActivity extends Activity implements OnItemSelectedListener{
             list1.add(category.getName());
         }
 
-        list2.add("Papier Cuisson en Feuilles");
+        list2.add("Farfalle");
         adapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, list1);
         spinner1.setAdapter(adapter1);
 
@@ -64,6 +63,7 @@ public class SearchActivity extends Activity implements OnItemSelectedListener{
                             list2.clear();
                             list2.add(produit.getName());
                         }
+                        adapter2 = new ArrayAdapter<String>(SearchActivity.this, android.R.layout.simple_spinner_dropdown_item, list2);
                         spinner2.setAdapter(adapter2);
                     }
 
@@ -87,8 +87,7 @@ public class SearchActivity extends Activity implements OnItemSelectedListener{
 
         Button button = (Button) findViewById(R.id.validation);
 
-        produit = databaseAdapter.getProductByName(String.valueOf(spinner2.getSelectedItem()));
-        Log.i("valeurs",produit.getId()+""+produit.getName()+""+produit.getPrice());
+
         button.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
@@ -101,20 +100,23 @@ public class SearchActivity extends Activity implements OnItemSelectedListener{
 
                 // set dialog message
                 alertDialogBuilder
-                        .setMessage("Voulez-vous ajouter le produit ? votre liste de courses ??")
+                        .setMessage("Voulez-vous ajouter le produit à votre liste de courses ??")
                         .setCancelable(false)
 
                         .setPositiveButton("Ajouter le produit",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,int id) {
 
 
-
+                                produit = databaseAdapter.getProductByName(String.valueOf(spinner2.getSelectedItem()));
                                 final Intent intent = new Intent();
                                 intent.putExtra(intentName, produit.getName());
                                 Log.i("Name",produit.getName());
                                 intent.putExtra(intentPrice, String.valueOf(produit.getPrice()));
                                 Log.i("Price",String.valueOf(produit.getPrice()));
+                                intent.putExtra("position", "6_H");
                                 intent.setAction("com.example.handycart.mainIntent");
+                                sendBroadcast(intent);
+                                intent.setAction("com.example.handycart.navigIntent");
                                 sendBroadcast(intent);
 
 

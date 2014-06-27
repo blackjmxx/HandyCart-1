@@ -272,7 +272,10 @@ import static com.example.handycart.Constant.TOTAL;
                         listviewAdapterPrice adapterTotal = new listviewAdapterPrice(MainActivity.this, listTotal);
                         lviewTotal.setAdapter(adapterTotal);
 
-
+                        Intent i = new Intent();
+                        i.putExtra("scan", "6_H");
+                        i.setAction("com.example.handycart.navigIntent2");
+                        sendBroadcast(i);
                     }
                     Log.d("MessengerActivity", "Response: " + text);
                 } else {

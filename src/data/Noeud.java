@@ -9,7 +9,7 @@ public class Noeud {
     private Point parent;
 
     public Noeud() {
-        this.coutF = Float.MAX_VALUE;
+        this.coutF = 0.0;
         this.coutG = 0.0;
         this.coutH = 0.0;
         this.parent = null;

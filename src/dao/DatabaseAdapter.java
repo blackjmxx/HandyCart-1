@@ -274,34 +274,6 @@ public class DatabaseAdapter extends SQLiteOpenHelper {
         return product;
     }
 
-    public ArrayList<Product> getProductByFamily(String family) {
-
-        ArrayList<Product> products = new ArrayList<Product>();
-
-        String sql = "SELECT prd.prd_id, prd.libelle, prd.prd_prix, prd.prd_description, mqp.mqp_libelle, ctp.ctp_libelle, ctp.ctp_localisation, fmp_libelle FROM fmp_famille_produit fmp INNER JOIN ctp_categorie_produit ctp ON (fmp.fmp_id = ctp.fmp_id) INNER JOIN prd_produit prd ON (ctp.ctp_id = prd.ctp_id) INNER JOIN mqp_marque_produit mqp ON (prd.mqp_id = mqp.mqp_id) WHERE fmp_libelle = '"
-                + family + "'";
-
-        Cursor cursor = sqliteDatabase.rawQuery(sql, null);
-
-        cursor.moveToFirst();
-
-        while (!cursor.isAfterLast()) {
-            products.add(new Product(cursor.getInt(cursor
-                    .getColumnIndex("PRD_ID")), family, cursor.getString(cursor
-                    .getColumnIndex("LIBELLE")), cursor.getDouble(cursor
-                    .getColumnIndex("PRD_PRIX")), cursor.getString(cursor
-                    .getColumnIndex("PRD_DESCRIPTION")), cursor
-                    .getString(cursor.getColumnIndex("MQP_LIBELLE")), cursor
-                    .getString(cursor.getColumnIndex("CTP_LIBELLE")), cursor
-                    .getString(cursor.getColumnIndex("CTP_LOCALISATION")),
-                    cursor.getString(cursor.getColumnIndex("FMP_LIBELLE"))));
-            cursor.moveToNext();
-        }
-
-        cursor.close();
-
-        return products;
-    }
     public ArrayList<Product> getProductsByCategoryName(String categoryName) {
 
         ArrayList<Product> products = new ArrayList<Product>();
@@ -333,5 +305,4 @@ public class DatabaseAdapter extends SQLiteOpenHelper {
 
         return products;
     }
-
 }

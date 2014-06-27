@@ -15,17 +15,18 @@
         <activity android:name=".NavigationActivity">
             <intent-filter>
                 <action android:name="com.example.handycart.NavigationActivity.DO_SOME" />
-
+                <action android:name = "com.example.handycart.navigIntent"/>
+                <action android:name = "com.example.handycart.navigIntent2"/>
             </intent-filter>
         </activity>
 
         <activity android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"/>
-        <intent-filter>
-
-            <action android:name = "com.example.handycart.mainIntent"/>
-        </intent-filter>
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <action android:name = "com.example.handycart.mainIntent"/>
+            </intent-filter>
+        </activity>
 
         <activity android:name=".SearchActivity" />
         <activity android:name=".AssistanceActivity" />
